@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "coe-blog",
+  "name": "coe-advice",
   "compatibility_date": "2026-07-06",
   "observability": { "enabled": true },
   // Pure static assets (no server code). `astro build` outputs to
