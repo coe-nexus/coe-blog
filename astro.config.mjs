@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import markdoc from '@astrojs/markdoc';
 
 // The blog is a standalone Astro project deployed as its own Cloudflare
 // Worker on the route coveofedu.org/blog/* — it never touches the main
@@ -12,5 +13,7 @@ export default defineConfig({
   base: '/blog',
   outDir: './dist/blog',
   trailingSlash: 'always',
-  integrations: [sitemap()],
+  // markdoc() lets posts authored in Keystatic (which writes .mdoc) render.
+  // Existing .md posts keep rendering via the default Markdown pipeline.
+  integrations: [markdoc(), sitemap()],
 });

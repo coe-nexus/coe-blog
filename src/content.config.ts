@@ -6,7 +6,9 @@ import { glob } from 'astro/loaders';
 // the output schema for the AI drafting pipeline (Phase 2), so what the
 // model generates and what the site builds can never drift apart.
 const blog = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  // Load both plain Markdown (.md, hand-authored) and Markdoc (.mdoc, written
+  // by Keystatic). Same frontmatter schema validates both.
+  loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     // The "answer capsule": a 40–60 word standalone summary. Shown right
