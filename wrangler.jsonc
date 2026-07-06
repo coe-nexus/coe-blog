@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "coe-blog",
+  "compatibility_date": "2026-07-06",
+  "observability": { "enabled": true },
+  // Pure static assets (no server code). `astro build` outputs to
+  // ./dist/blog; we point the assets root at ./dist so files resolve
+  // at coveofedu.org/blog/... once the coveofedu.org/blog/* route is
+  // attached to this Worker.
+  "assets": { "directory": "./dist" }
+}

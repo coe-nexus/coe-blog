@@ -1,0 +1,7 @@
+---
+// Renders a JSON-LD block server-side, at build time, into the raw HTML —
+// so AI crawlers (GPTBot, Claude, Perplexity, etc.) see it without running JS.
+interface Props { schema: unknown }
+const { schema } = Astro.props;
+---
+<script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />

@@ -1,0 +1,86 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+}
+const { title, description, canonical } = Astro.props;
+const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+const home = import.meta.env.BASE_URL; // "/blog/"
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <slot name="head" />
+
+  <style is:global>
+    :root{
+      --navy:#1B2A4A; --azure:#598AC1; --azure-text:#3D6B9E; --coral:#E8734A;
+      --cream:#FBF8F1; --sand:#D2C0B3; --gold:#C9A84C; --gold-text:#B0902F;
+      --slate:#5A6B7D; --mist:#8A95A5; --surface:#FFFFFF; --border:#E7DFD3;
+      --f-display:'Comfortaa',system-ui,sans-serif;
+      --f-body:'DM Sans','Rethink Sans','Poppins',system-ui,sans-serif;
+      --maxw:760px; --radius:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--f-body);background:var(--cream);color:var(--slate);
+      font-size:17px;line-height:1.75;-webkit-font-smoothing:antialiased}
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+    h1,h2,h3,h4{font-family:var(--f-display);color:var(--navy);line-height:1.2;font-weight:600}
+    a{color:var(--azure-text);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .topbar{position:sticky;top:0;z-index:20;background:rgba(27,42,74,.96);
+      backdrop-filter:blur(6px);color:var(--cream);padding:16px 0}
+    .topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .topbar .mark{font-family:var(--f-display);font-weight:600;font-size:18px;color:var(--cream)}
+    .topbar .cta{display:inline-flex;align-items:center;gap:8px;background:var(--coral);color:#fff;
+      border-radius:99px;padding:9px 20px;font-weight:600;font-size:14px}
+    .topbar .cta:hover{filter:brightness(1.05);text-decoration:none}
+
+    main{padding:56px 0 72px}
+
+    footer{background:var(--navy);color:var(--cream);padding:48px 0;margin-top:40px}
+    footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+    footer .mark{font-family:var(--f-display);font-weight:600;font-size:18px}
+    footer a{color:var(--sand)}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <a class="mark" href={home}>Covenant · Blog</a>
+      <a class="cta" href="/problem">Free Parent Guide →</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="wrap">
+      <slot />
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span class="mark">Covenant of Education</span>
+      <a href="/">coveofedu.org</a>
+    </div>
+  </footer>
+</body>
+</html>

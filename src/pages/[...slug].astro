@@ -1,0 +1,104 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import JsonLd from '../components/JsonLd.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { title, description, pubDate, updatedDate, author, faq } = post.data;
+
+const site = 'https://coveofedu.org';
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const graph: Record<string, unknown>[] = [
+  {
+    '@type': 'EducationalOrganization',
+    '@id': `${site}/#org`,
+    name: 'Covenant of Education',
+    url: site,
+  },
+  {
+    '@type': 'Person',
+    '@id': `${site}/#izzy`,
+    name: author,
+  },
+  {
+    '@type': 'Article',
+    headline: title,
+    description,
+    datePublished: pubDate.toISOString(),
+    dateModified: (updatedDate ?? pubDate).toISOString(),
+    author: { '@id': `${site}/#izzy` },
+    publisher: { '@id': `${site}/#org` },
+    mainEntityOfPage: url,
+    inLanguage: 'en',
+  },
+];
+if (faq && faq.length) {
+  graph.push({
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
+    })),
+  });
+}
+const schema = { '@context': 'https://schema.org', '@graph': graph };
+---
+<BaseLayout title={`${title} | Covenant of Education`} description={description} canonical={url}>
+  <JsonLd slot="head" schema={schema} />
+
+  <article>
+    <a href={import.meta.env.BASE_URL} style="font-size:13px;color:var(--mist)">← All posts</a>
+
+    <h1 style="font-size:clamp(28px,4.6vw,40px);margin:14px 0 8px">{title}</h1>
+
+    <p style="font-size:13px;color:var(--mist);margin-bottom:22px">
+      By {author} · {fmt(pubDate)}{updatedDate && ` · Updated ${fmt(updatedDate)}`}
+    </p>
+
+    {/* Answer capsule: standalone summary AI engines can lift. */}
+    <p style="font-size:19px;line-height:1.6;color:var(--navy);font-weight:500;border-left:3px solid var(--coral);padding-left:18px;margin-bottom:32px">
+      {description}
+    </p>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {faq && faq.length > 0 && (
+      <section style="margin-top:48px;border-top:1px solid var(--border);padding-top:32px">
+        <h2 style="font-size:26px;margin-bottom:20px">Frequently asked questions</h2>
+        {faq.map((f) => (
+          <div style="margin-bottom:22px">
+            <h3 style="font-size:18px;margin-bottom:6px">{f.question}</h3>
+            <p style="color:var(--slate)">{f.answer}</p>
+          </div>
+        ))}
+      </section>
+    )}
+
+    <div style="margin-top:48px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center">
+      <p style="font-family:var(--f-display);font-weight:600;color:var(--navy);font-size:20px;margin-bottom:14px">You don't have to guide your child alone.</p>
+      <a href="/problem" style="display:inline-flex;align-items:center;gap:8px;background:var(--coral);color:#fff;border-radius:99px;padding:14px 28px;font-weight:600">Get the free Parent Guide →</a>
+    </div>
+  </article>
+
+  <style>
+    .prose :global(h2){font-size:26px;margin:36px 0 12px}
+    .prose :global(h3){font-size:20px;margin:28px 0 10px}
+    .prose :global(p){margin:0 0 18px}
+    .prose :global(ul),.prose :global(ol){margin:0 0 18px 22px}
+    .prose :global(li){margin-bottom:8px}
+    .prose :global(blockquote){border-left:3px solid var(--sand);padding-left:18px;color:var(--slate);font-style:italic;margin:0 0 18px}
+    .prose :global(a){text-decoration:underline}
+  </style>
+</BaseLayout>

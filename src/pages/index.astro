@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import JsonLd from '../components/JsonLd.astro';
+
+const base = import.meta.env.BASE_URL; // "/blog/"
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const site = 'https://coveofedu.org';
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  '@id': `${site}/#org`,
+  name: 'Covenant of Education',
+  url: site,
+  sameAs: [
+    // TODO: fill with real profiles (LinkedIn, YouTube, Instagram, Candid/GuideStar, Wikidata QID)
+  ],
+};
+---
+<BaseLayout
+  title="The Covenant of Education Blog — Helping Gifted, Misunderstood Teens"
+  description="Practical, research-informed guidance for parents of gifted teenagers who feel unseen — on isolation, purpose, mentorship, and what actually helps."
+>
+  <JsonLd slot="head" schema={orgSchema} />
+
+  <header style="text-align:center;margin-bottom:44px">
+    <span style="font-family:var(--f-body);text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--coral);font-weight:600">The Covenant Blog</span>
+    <h1 style="font-size:clamp(30px,5vw,44px);margin:12px 0 14px">For parents of gifted, misunderstood teens</h1>
+    <p style="max-width:56ch;margin:0 auto;color:var(--slate)">
+      Honest, practical writing on the struggles that hide behind talent — and the
+      mentorship that helps a gifted teen believe they are already enough.
+    </p>
+  </header>
+
+  {posts.length === 0 && (
+    <p style="text-align:center;color:var(--mist)">No posts yet. Check back soon.</p>
+  )}
+
+  <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:28px">
+    {posts.map((post) => (
+      <li style="border-bottom:1px solid var(--border);padding-bottom:28px">
+        <p style="font-size:13px;color:var(--mist);margin-bottom:6px">
+          {fmt(post.data.pubDate)} · {post.data.author}
+        </p>
+        <h2 style="font-size:24px;margin-bottom:8px">
+          <a href={`${base}${post.id}/`}>{post.data.title}</a>
+        </h2>
+        <p style="color:var(--slate)">{post.data.description}</p>
+        <a href={`${base}${post.id}/`} style="display:inline-block;margin-top:10px;font-weight:600">Read →</a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
